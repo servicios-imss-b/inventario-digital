@@ -47,6 +47,52 @@ function fillTableCell(xml: string, rowNumber: number, cellNumber: number, value
   return xml.replace(row, filledRow);
 }
 
+function setTableCellCheckbox(xml: string, rowNumber: number, cellNumber: number, checkboxNumber: number, checked: boolean): string {
+  const rows = Array.from(xml.matchAll(/<w:tr(?:\s[^>]*)?>[\s\S]*?<\/w:tr>/g));
+  const row = rows[rowNumber - 1]?.[0];
+  if (!row) return xml;
+  const cells = Array.from(row.matchAll(/<w:tc(?:\s[^>]*)?>[\s\S]*?<\/w:tc>/g));
+  const cellMatch = cells[cellNumber - 1];
+  if (!cellMatch) return xml;
+  const controls = Array.from(cellMatch[0].matchAll(/<w:sdt(?:\s[^>]*)?>[\s\S]*?<\/w:sdt>/g));
+  const controlMatch = controls[checkboxNumber - 1];
+  if (!controlMatch) return xml;
+
+  const control = controlMatch[0]
+    .replace(/<w14:checked w14:val="[^"]*"\s*\/>/, `<w14:checked w14:val="${checked ? '1' : '0'}"/>`)
+    .replace(/<w:t>☐<\/w:t>/, `<w:t>${checked ? '☒' : '☐'}</w:t>`);
+  const updatedCell = cellMatch[0].replace(controlMatch[0], control);
+  const updatedRow = row.slice(0, (cellMatch.index ?? 0)) + updatedCell + row.slice((cellMatch.index ?? 0) + cellMatch[0].length);
+  return xml.replace(row, updatedRow);
+}
+
+function fillSignatureCell(xml: string, cellNumber: number, name: string, position: string): string {
+  if (!name.trim() && !position.trim()) return xml;
+  const rows = Array.from(xml.matchAll(/<w:tr(?:\s[^>]*)?>[\s\S]*?<\/w:tr>/g));
+  const row = rows[21]?.[0];
+  if (!row) return xml;
+  const cells = Array.from(row.matchAll(/<w:tc(?:\s[^>]*)?>[\s\S]*?<\/w:tc>/g));
+  const cellMatch = cells[cellNumber - 1];
+  if (!cellMatch) return xml;
+  const paragraphMatch = Array.from(cellMatch[0].matchAll(/<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/g))
+    .find((match) => match[0].includes('Nombre y Firma'));
+  if (!paragraphMatch) return xml;
+
+  const paragraph = paragraphMatch[0];
+  const labelRunMatch = Array.from(paragraph.matchAll(/<w:r(?:\s[^>]*)?>[\s\S]*?<\/w:r>/g))
+    .find((match) => match[0].includes('Nombre y Firma'));
+  if (!labelRunMatch) return xml;
+
+  const labelRun = labelRunMatch[0];
+  const runProperties = labelRun.match(/<w:rPr>[\s\S]*?<\/w:rPr>/)?.[0] ?? '';
+  const filledRun = labelRun.replace(/(<w:t(?:\s[^>]*)?>)[\s\S]*?(<\/w:t>)/, `$1${escapeXml(name)}$2`);
+  const cargoRuns = `<w:r>${runProperties}<w:br/></w:r><w:r>${runProperties}<w:t xml:space="preserve">Cargo: ${escapeXml(position)}</w:t></w:r>`;
+  const updatedParagraph = paragraph.slice(0, (labelRunMatch.index ?? 0)) + filledRun + cargoRuns + paragraph.slice((labelRunMatch.index ?? 0) + labelRun.length);
+  const updatedCell = cellMatch[0].replace(paragraph, updatedParagraph);
+  const updatedRow = row.slice(0, (cellMatch.index ?? 0)) + updatedCell + row.slice((cellMatch.index ?? 0) + cellMatch[0].length);
+  return xml.replace(row, updatedRow);
+}
+
 export async function downloadArchiveReportDocx(report: ArchiveReportInput): Promise<void> {
   const templateUrl = `${import.meta.env.BASE_URL}bases/Reporte_Archivos_de_Tramite.docx`;
   const response = await fetch(templateUrl);
@@ -82,12 +128,37 @@ export async function downloadArchiveReportDocx(report: ArchiveReportInput): Pro
   xml = fillTableCell(xml, 13, 4, report.producer_newest_year);
   xml = fillTableCell(xml, 13, 5, report.coordinator_oldest_year);
   xml = fillTableCell(xml, 13, 6, report.coordinator_newest_year);
-  xml = fillTableCell(xml, 14, 3, report.producer_condition ? `X  ${report.producer_condition}.` : '');
-  xml = fillTableCell(xml, 14, 4, report.coordinator_condition ? `X  ${report.coordinator_condition}.` : '');
+  const conditionOptions = ['Buenas', 'Regulares', 'Malas', 'Pésimas'];
+  for (let option = 0; option < conditionOptions.length; option++) {
+    setTableCellCheckbox(xml, 14, 3, option + 1, report.producer_condition === conditionOptions[option]);
+    setTableCellCheckbox(xml, 14, 4, option + 1, report.coordinator_condition === conditionOptions[option]);
+  }
 
-  xml = xml.replace(/Responsable de Archivo de Trámite/g, escapeXml(`${report.rat_name || ''}${report.rat_position ? ` — ${report.rat_position}` : ''}` || 'Responsable de Archivo de Trámite'));
-  xml = xml.replace(/Revisor Adscrito al Área Coordinadora de Archivos/g, escapeXml(`${report.coordinator_name || ''}${report.coordinator_position ? ` — ${report.coordinator_position}` : ''}` || 'Revisor Adscrito al Área Coordinadora de Archivos'));
-  xml = xml.replace(/Nombre y Firma/g, escapeXml(`Nombre y Cargo`));
+  const digital = { ...emptyEntry(), ...(report.digital_backup ?? {}) };
+  const dcai = { ...emptyEntry(), ...(report.dcai_documentation ?? {}) };
+  const clean = { ...emptyEntry(), ...(report.dcai_clean ?? {}) };
+  xml = fillTableCell(xml, 16, 3, digital.producer_yes ? 'X' : '');
+  xml = fillTableCell(xml, 16, 4, digital.producer_no ? 'X' : '');
+  xml = fillTableCell(xml, 16, 6, digital.coordinator_yes ? 'X' : '');
+  xml = fillTableCell(xml, 16, 7, digital.coordinator_no ? 'X' : '');
+  xml = fillTableCell(xml, 16, 8, digital.observations);
+  xml = fillTableCell(xml, 18, 3, dcai.producer_yes ? 'X' : '');
+  xml = fillTableCell(xml, 18, 4, dcai.producer_no ? 'X' : '');
+  xml = fillTableCell(xml, 18, 5, dcai.producer_quantity);
+  xml = fillTableCell(xml, 18, 6, dcai.coordinator_yes ? 'X' : '');
+  xml = fillTableCell(xml, 18, 7, dcai.coordinator_no ? 'X' : '');
+  xml = fillTableCell(xml, 18, 8, dcai.coordinator_quantity);
+  xml = fillTableCell(xml, 18, 9, dcai.observations);
+  xml = fillTableCell(xml, 20, 3, clean.producer_yes ? 'X' : '');
+  xml = fillTableCell(xml, 20, 4, clean.producer_no ? 'X' : '');
+  xml = fillTableCell(xml, 20, 5, clean.observations);
+  xml = fillTableCell(xml, 20, 6, clean.coordinator_yes ? 'X' : '');
+  xml = fillTableCell(xml, 20, 7, clean.coordinator_no ? 'X' : '');
+  xml = fillTableCell(xml, 20, 8, clean.observations);
+
+  xml = fillSignatureCell(xml, 1, report.producer_area_name, report.producer_area_position);
+  xml = fillSignatureCell(xml, 3, report.rat_name, report.rat_position);
+  xml = fillSignatureCell(xml, 5, report.coordinator_name, report.coordinator_position);
 
   zip.file('word/document.xml', xml);
 
