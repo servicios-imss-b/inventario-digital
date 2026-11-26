@@ -580,7 +580,7 @@ button {
 
 .archive-wizard-steps {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   border-bottom: 1px solid #e2e8f0;
 }
 
