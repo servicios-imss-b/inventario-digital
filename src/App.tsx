@@ -27,7 +27,7 @@ import {
   type ExcelImportRow,
 } from './api';
 import { CabinetConfigModal } from './components/CabinetConfigModal';
-import { ArchiveReportView } from './components/ArchiveReportView';
+import { ArchiveReportWizard } from './components/ArchiveReportWizard';
 import { DashboardView, type AppView } from './components/DashboardView';
 import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { ExcelImportModal } from './components/ExcelImportModal';
@@ -395,7 +395,7 @@ export default function App() {
               )}
 
               {activeView === 'reports' && (
-                <ArchiveReportView
+                <ArchiveReportWizard
                   reports={archiveReports}
                   units={units}
                   areas={areas}
