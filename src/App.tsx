@@ -201,7 +201,7 @@ export default function App() {
       <aside className={`hidden shrink-0 flex-col border-r border-slate-200 bg-white lg:flex ${desktopNavCollapsed ? 'w-16' : 'w-64'}`}>
         <div className={`flex h-16 items-center border-b border-slate-200 ${desktopNavCollapsed ? 'justify-center px-2' : 'gap-2.5 px-5'}`}>
           <img
-            src="/archive-logo.jpeg"
+            src={`${import.meta.env.BASE_URL}archive-logo.jpeg`}
             alt="Archivo Administrativo"
             className="h-14 w-14 shrink-0 rounded-full object-cover"
           />
