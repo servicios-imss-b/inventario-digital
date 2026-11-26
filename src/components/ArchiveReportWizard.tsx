@@ -90,9 +90,12 @@ function blankReport(unitName: string): ArchiveReportInput {
     digital_backup: emptyEntry(),
     dcai_documentation: emptyEntry(),
     dcai_clean: emptyEntry(),
-    producer_area_signature: '',
-    rat_signature: '',
-    coordinator_signature: '',
+    producer_area_name: '',
+    producer_area_position: '',
+    rat_name: '',
+    rat_position: '',
+    coordinator_name: '',
+    coordinator_position: '',
   };
 }
 
@@ -112,9 +115,12 @@ function reportInput(report: ArchiveReportRecord): ArchiveReportInput {
     digital_backup: report.digital_backup ?? emptyEntry(),
     dcai_documentation: report.dcai_documentation ?? emptyEntry(),
     dcai_clean: report.dcai_clean ?? emptyEntry(),
-    producer_area_signature: report.producer_area_signature ?? '',
-    rat_signature: report.rat_signature ?? '',
-    coordinator_signature: report.coordinator_signature ?? '',
+    producer_area_name: report.producer_area_name ?? '',
+    producer_area_position: report.producer_area_position ?? '',
+    rat_name: report.rat_name ?? '',
+    rat_position: report.rat_position ?? '',
+    coordinator_name: report.coordinator_name ?? '',
+    coordinator_position: report.coordinator_position ?? '',
   };
 }
 
@@ -326,9 +332,12 @@ export function ArchiveReportWizard({ reports, units, areas, onSave }: Props) {
             <h2>Firmas</h2>
             <p>Capture nombre y cargo. Las líneas de firma quedan en el formato para firmar de forma manual al imprimir.</p>
             <div className="archive-wizard-grid">
-              <label>Nombre y cargo — Área Productora <input value={report.producer_area_signature} onChange={(event) => update('producer_area_signature', event.target.value)} /><Instruction instructionKey="producerArea" /></label>
-              <label>Nombre y cargo — Responsable de Archivo de Trámite <input value={report.rat_signature} onChange={(event) => update('rat_signature', event.target.value)} /><Instruction instructionKey="rat" /></label>
-              <label className="archive-wizard-full">Nombre y cargo — Revisor Adscrito al Área Coordinadora <input value={report.coordinator_signature} onChange={(event) => update('coordinator_signature', event.target.value)} /><Instruction instructionKey="coordinator" /></label>
+              <label>Nombre — Área Productora <input value={report.producer_area_name} onChange={(event) => update('producer_area_name', event.target.value)} /><Instruction instructionKey="producerArea" /></label>
+              <label>Cargo — Área Productora <input value={report.producer_area_position} onChange={(event) => update('producer_area_position', event.target.value)} /></label>
+              <label>Nombre — Responsable de Archivo de Trámite <input value={report.rat_name} onChange={(event) => update('rat_name', event.target.value)} /><Instruction instructionKey="rat" /></label>
+              <label>Cargo — Responsable de Archivo de Trámite <input value={report.rat_position} onChange={(event) => update('rat_position', event.target.value)} /></label>
+              <label>Nombre — Revisor Adscrito al Área Coordinadora <input value={report.coordinator_name} onChange={(event) => update('coordinator_name', event.target.value)} /><Instruction instructionKey="coordinator" /></label>
+              <label>Cargo — Revisor Adscrito al Área Coordinadora <input value={report.coordinator_position} onChange={(event) => update('coordinator_position', event.target.value)} /></label>
             </div>
           </section>
         )}

@@ -35,8 +35,9 @@ const TABLES = {
       'id', 'administrative_unit_name', 'producing_area_name', 'report_date', 'review_date',
       'checklist', 'producer_oldest_year', 'producer_newest_year', 'coordinator_oldest_year',
       'coordinator_newest_year', 'producer_condition', 'coordinator_condition', 'digital_backup',
-      'dcai_documentation', 'dcai_clean', 'producer_area_signature', 'rat_signature',
-      'coordinator_signature', 'created_at', 'updated_at',
+      'dcai_documentation', 'dcai_clean', 'producer_area_name', 'producer_area_position',
+      'rat_name', 'rat_position', 'coordinator_name', 'coordinator_position',
+      'created_at', 'updated_at',
     ],
   },
 };

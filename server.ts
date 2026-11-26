@@ -417,6 +417,12 @@ const archiveReportAlterations: Record<string, string> = {
   producer_area_signature: "TEXT NOT NULL DEFAULT ''",
   rat_signature: "TEXT NOT NULL DEFAULT ''",
   producer_signature: "TEXT NOT NULL DEFAULT ''",
+  producer_area_name: "TEXT NOT NULL DEFAULT ''",
+  producer_area_position: "TEXT NOT NULL DEFAULT ''",
+  rat_name: "TEXT NOT NULL DEFAULT ''",
+  rat_position: "TEXT NOT NULL DEFAULT ''",
+  coordinator_name: "TEXT NOT NULL DEFAULT ''",
+  coordinator_position: "TEXT NOT NULL DEFAULT ''",
   coordinator_signature: "TEXT NOT NULL DEFAULT ''",
 };
 for (const [columnName, definition] of Object.entries(archiveReportAlterations)) {
@@ -502,7 +508,12 @@ app.post('/api/reports/docx', async (req: Request, res: Response) => {
       <w:tr><w:tc><w:p><w:r><w:t>9</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>¿Cuenta con documentación de comprobación administrativa inmediata (DCAI)?</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Productora: ${dcai.producer_yes ? 'SÍ' : ''} ${dcai.producer_no ? 'NO' : ''} Cajas: ${escapeXmlText(dcai.producer_quantity || '')}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Coordinadora: ${dcai.coordinator_yes ? 'SÍ' : ''} ${dcai.coordinator_no ? 'NO' : ''} Cajas: ${escapeXmlText(dcai.coordinator_quantity || '')} Observaciones: ${escapeXmlText(dcai.observations || '')}</w:t></w:r></w:p></w:tc></w:tr>
       <w:tr><w:tc><w:p><w:r><w:t>10</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>¿La DCAI se encuentra limpia de material corrosivo?</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Productora: ${dcaiClean.producer_yes ? 'SÍ' : ''} ${dcaiClean.producer_no ? 'NO' : ''}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Coordinadora: ${dcaiClean.coordinator_yes ? 'SÍ' : ''} ${dcaiClean.coordinator_no ? 'NO' : ''} Observaciones: ${escapeXmlText(dcaiClean.observations || '')} Condición coordinadora: ${conditionText}</w:t></w:r></w:p></w:tc></w:tr>
       </w:tbl>
-      <w:p><w:r><w:t xml:space="preserve">Firmas: Área Productora: ${escapeXmlText(report.producer_area_signature || '')} | Responsable de Archivo de Trámite: ${escapeXmlText(report.rat_signature || '')} | Revisor Adscrito al Área Coordinadora de Archivos: ${escapeXmlText(report.coordinator_signature || '')}</w:t></w:r></w:p>`;
+      <w:p><w:r><w:t xml:space="preserve">Área Productora — Nombre: ${escapeXmlText(report.producer_area_name || '')} | Cargo: ${escapeXmlText(report.producer_area_position || '')}</w:t></w:r></w:p>
+      <w:p><w:r><w:t xml:space="preserve">Responsable de Archivo de Trámite — Nombre: ${escapeXmlText(report.rat_name || '')} | Cargo: ${escapeXmlText(report.rat_position || '')}</w:t></w:r></w:p>
+      <w:p><w:r><w:t xml:space="preserve">Revisor Adscrito al Área Coordinadora — Nombre: ${escapeXmlText(report.coordinator_name || '')} | Cargo: ${escapeXmlText(report.coordinator_position || '')}</w:t></w:r></w:p>
+      <w:p><w:r><w:t>Firma: ______________________________</w:t></w:r></w:p>
+      <w:p><w:r><w:t>Firma: ______________________________</w:t></w:r></w:p>
+      <w:p><w:r><w:t>Firma: ______________________________</w:t></w:r></w:p>`;
     xml = xml.replace('</w:body>', `${extraRowsXml}</w:body>`);
 
     xml = xml
@@ -598,6 +609,12 @@ function cleanArchiveReportBody(body: Record<string, any>) {
     producer_area_signature: cleanStr(body.producer_area_signature, 200),
     rat_signature: cleanStr(body.rat_signature, 200),
     producer_signature: cleanStr(body.producer_signature, 200),
+    producer_area_name: cleanStr(body.producer_area_name, 200),
+    producer_area_position: cleanStr(body.producer_area_position, 200),
+    rat_name: cleanStr(body.rat_name, 200),
+    rat_position: cleanStr(body.rat_position, 200),
+    coordinator_name: cleanStr(body.coordinator_name, 200),
+    coordinator_position: cleanStr(body.coordinator_position, 200),
     coordinator_signature: cleanStr(body.coordinator_signature, 200),
   };
 }
@@ -629,8 +646,8 @@ app.post('/api/archive-reports', (req: Request, res: Response) => {
           administrative_unit_name, producing_area_name, report_date, review_date, checklist_json,
           producer_oldest_year, producer_newest_year, coordinator_oldest_year, coordinator_newest_year,
           producer_condition, coordinator_condition, digital_backup_json, dcai_documentation_json, dcai_clean_json,
-          producer_area_signature, rat_signature, producer_signature, coordinator_signature, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          producer_area_name, producer_area_position, rat_name, rat_position, coordinator_name, coordinator_position, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         report.administrative_unit_name,
@@ -647,10 +664,12 @@ app.post('/api/archive-reports', (req: Request, res: Response) => {
         JSON.stringify(report.digital_backup),
         JSON.stringify(report.dcai_documentation),
         JSON.stringify(report.dcai_clean),
-        report.producer_area_signature,
-        report.rat_signature,
-        report.producer_signature,
-        report.coordinator_signature,
+        report.producer_area_name,
+        report.producer_area_position,
+        report.rat_name,
+        report.rat_position,
+        report.coordinator_name,
+        report.coordinator_position,
         now,
         now
       );
@@ -674,7 +693,7 @@ app.put('/api/archive-reports/:id', (req: Request, res: Response) => {
         administrative_unit_name = ?, producing_area_name = ?, report_date = ?, review_date = ?, checklist_json = ?,
         producer_oldest_year = ?, producer_newest_year = ?, coordinator_oldest_year = ?, coordinator_newest_year = ?,
         producer_condition = ?, coordinator_condition = ?, digital_backup_json = ?, dcai_documentation_json = ?, dcai_clean_json = ?,
-        producer_area_signature = ?, rat_signature = ?, producer_signature = ?, coordinator_signature = ?, updated_at = ?
+        producer_area_name = ?, producer_area_position = ?, rat_name = ?, rat_position = ?, coordinator_name = ?, coordinator_position = ?, updated_at = ?
       WHERE id = ?`
     ).run(
       report.administrative_unit_name,
@@ -691,10 +710,12 @@ app.put('/api/archive-reports/:id', (req: Request, res: Response) => {
       JSON.stringify(report.digital_backup),
       JSON.stringify(report.dcai_documentation),
       JSON.stringify(report.dcai_clean),
-      report.producer_area_signature,
-      report.rat_signature,
-      report.producer_signature,
-      report.coordinator_signature,
+      report.producer_area_name,
+      report.producer_area_position,
+      report.rat_name,
+      report.rat_position,
+      report.coordinator_name,
+      report.coordinator_position,
       new Date().toISOString(),
       id
     );

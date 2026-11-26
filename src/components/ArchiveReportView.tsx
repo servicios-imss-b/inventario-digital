@@ -91,8 +91,12 @@ function blankReport(unitName: string): ArchiveReportInput {
     digital_backup: emptyEntry(),
     dcai_documentation: emptyEntry(),
     dcai_clean: emptyEntry(),
-    producer_area_signature: '',
-    rat_signature: '',
+    producer_area_name: '',
+    producer_area_position: '',
+    rat_name: '',
+    rat_position: '',
+    coordinator_name: '',
+    coordinator_position: '',
     producer_oldest_year: '',
     producer_newest_year: '',
     coordinator_oldest_year: '',
@@ -113,13 +117,16 @@ function reportInput(report: ArchiveReportRecord): ArchiveReportInput {
     digital_backup: report.digital_backup ?? emptyEntry(),
     dcai_documentation: report.dcai_documentation ?? emptyEntry(),
     dcai_clean: report.dcai_clean ?? emptyEntry(),
-    producer_area_signature: report.producer_area_signature ?? '',
-    rat_signature: report.rat_signature ?? '',
+    producer_area_name: report.producer_area_name ?? report.producer_area_signature ?? '',
+    producer_area_position: report.producer_area_position ?? '',
+    rat_name: report.rat_name ?? report.rat_signature ?? '',
+    rat_position: report.rat_position ?? '',
     producer_oldest_year: report.producer_oldest_year,
     producer_newest_year: report.producer_newest_year,
     coordinator_oldest_year: report.coordinator_oldest_year,
     coordinator_newest_year: report.coordinator_newest_year,
-    coordinator_signature: report.coordinator_signature ?? '',
+    coordinator_name: report.coordinator_name ?? report.coordinator_signature ?? '',
+    coordinator_position: report.coordinator_position ?? '',
   };
 }
 
@@ -551,18 +558,21 @@ export function ArchiveReportView({ reports, units, areas, onSave }: ArchiveRepo
 
           <div className="archive-report-signatures">
             <label>
-              <input aria-label="Nombre, cargo y firma del Área Productora" value={report.producer_area_signature} onChange={(event) => updateReport('producer_area_signature', event.target.value)} className="archive-report-signature-input" />
-              <span>Nombre y Firma<br />Área Productora</span>
+              <input aria-label="Nombre del Área Productora" value={report.producer_area_name} onChange={(event) => updateReport('producer_area_name', event.target.value)} className="archive-report-signature-input" />
+              <input aria-label="Cargo del Área Productora" value={report.producer_area_position} onChange={(event) => updateReport('producer_area_position', event.target.value)} className="archive-report-signature-input" />
+              <span>Nombre y Cargo<br />Área Productora</span>
               <FieldInstructions instructionKey="producer_area_signature" />
             </label>
             <label>
-              <input aria-label="Nombre, cargo y firma responsable de Archivo de Trámite" value={report.rat_signature} onChange={(event) => updateReport('rat_signature', event.target.value)} className="archive-report-signature-input" />
-              <span>Nombre y Firma<br />Responsable de Archivo de Trámite</span>
+              <input aria-label="Nombre del Responsable de Archivo de Trámite" value={report.rat_name} onChange={(event) => updateReport('rat_name', event.target.value)} className="archive-report-signature-input" />
+              <input aria-label="Cargo del Responsable de Archivo de Trámite" value={report.rat_position} onChange={(event) => updateReport('rat_position', event.target.value)} className="archive-report-signature-input" />
+              <span>Nombre y Cargo<br />Responsable de Archivo de Trámite</span>
               <FieldInstructions instructionKey="rat_signature" />
             </label>
             <label>
-              <input aria-label="Nombre y firma revisor Adscrito al Área Coordinadora de Archivos" value={report.coordinator_signature} onChange={(event) => updateReport('coordinator_signature', event.target.value)} className="archive-report-signature-input" />
-              <span>Nombre y Firma<br />Revisor Adscrito al Área Coordinadora de Archivos</span>
+              <input aria-label="Nombre del Revisor del Área Coordinadora" value={report.coordinator_name} onChange={(event) => updateReport('coordinator_name', event.target.value)} className="archive-report-signature-input" />
+              <input aria-label="Cargo del Revisor del Área Coordinadora" value={report.coordinator_position} onChange={(event) => updateReport('coordinator_position', event.target.value)} className="archive-report-signature-input" />
+              <span>Nombre y Cargo<br />Revisor Adscrito al Área Coordinadora de Archivos</span>
               <FieldInstructions instructionKey="coordinator_signature" />
             </label>
           </div>

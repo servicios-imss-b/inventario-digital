@@ -104,9 +104,15 @@ export interface ArchiveReportInput {
   digital_backup: ArchiveReportChecklistEntry;
   dcai_documentation: ArchiveReportChecklistEntry;
   dcai_clean: ArchiveReportChecklistEntry;
-  producer_area_signature: string;
-  rat_signature: string;
-  coordinator_signature: string;
+  producer_area_signature?: string;
+  rat_signature?: string;
+  coordinator_signature?: string;
+  producer_area_name: string;
+  producer_area_position: string;
+  rat_name: string;
+  rat_position: string;
+  coordinator_name: string;
+  coordinator_position: string;
 }
 
 export interface ArchiveReportRecord extends ArchiveReportInput {
