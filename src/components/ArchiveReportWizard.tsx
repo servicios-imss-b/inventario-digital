@@ -32,7 +32,6 @@ const STEPS = [
   'Fechas y condición',
   'Respaldo y DCAI',
   'Firmas',
-  'Vista previa',
 ];
 
 const RUBRICS = [
@@ -325,27 +324,15 @@ export function ArchiveReportWizard({ reports, units, areas, onSave }: Props) {
         {step === 4 && (
           <section>
             <h2>Firmas</h2>
-            <p>Capture nombre, cargo y firma de las personas responsables según el formato oficial.</p>
+            <p>Capture nombre y cargo. Las líneas de firma quedan en el formato para firmar de forma manual al imprimir.</p>
             <div className="archive-wizard-grid">
-              <label>Nombre y firma — Área Productora <textarea rows={3} value={report.producer_area_signature} onChange={(event) => update('producer_area_signature', event.target.value)} /><Instruction instructionKey="producerArea" /></label>
-              <label>Nombre y firma — Responsable de Archivo de Trámite <textarea rows={3} value={report.rat_signature} onChange={(event) => update('rat_signature', event.target.value)} /><Instruction instructionKey="rat" /></label>
-              <label className="archive-wizard-full">Nombre y firma — Revisor Adscrito al Área Coordinadora <textarea rows={3} value={report.coordinator_signature} onChange={(event) => update('coordinator_signature', event.target.value)} /><Instruction instructionKey="coordinator" /></label>
+              <label>Nombre y cargo — Área Productora <input value={report.producer_area_signature} onChange={(event) => update('producer_area_signature', event.target.value)} /><Instruction instructionKey="producerArea" /></label>
+              <label>Nombre y cargo — Responsable de Archivo de Trámite <input value={report.rat_signature} onChange={(event) => update('rat_signature', event.target.value)} /><Instruction instructionKey="rat" /></label>
+              <label className="archive-wizard-full">Nombre y cargo — Revisor Adscrito al Área Coordinadora <input value={report.coordinator_signature} onChange={(event) => update('coordinator_signature', event.target.value)} /><Instruction instructionKey="coordinator" /></label>
             </div>
           </section>
         )}
 
-        {step === 5 && (
-          <section>
-            <h2>Vista previa</h2>
-            <p>Revise los datos antes de guardar o descargar el DOCX.</p>
-            <div className="archive-wizard-preview">
-              <h3>REPORTE DE ARCHIVOS DE TRÁMITE</h3>
-              <dl><div><dt>Unidad Administrativa</dt><dd>{report.administrative_unit_name || '—'}</dd></div><div><dt>Área Productora</dt><dd>{report.producing_area_name || '—'}</dd></div><div><dt>Fecha reporte</dt><dd>{report.report_date || '—'}</dd></div><div><dt>Fecha revisión</dt><dd>{report.review_date || '—'}</dd></div></dl>
-              <table><thead><tr><th>No.</th><th>Rubro</th><th>Área Productora</th><th>Área Coordinadora</th></tr></thead><tbody>{RUBRICS.map((rubric, index) => { const entry = report.checklist[index] ?? emptyEntry(); return <tr key={rubric}><th>{index + 1}</th><td>{rubric}</td><td>{entry.producer_yes ? 'SÍ' : entry.producer_no ? 'NO' : '—'} {entry.producer_quantity ? `/ ${entry.producer_quantity}` : ''}</td><td>{entry.coordinator_yes ? 'SÍ' : entry.coordinator_no ? 'NO' : '—'} {entry.coordinator_quantity ? `/ ${entry.coordinator_quantity}` : ''}</td></tr>; })}<tr><th>6</th><td>Fechas extremas</td><td>{report.producer_oldest_year || '—'} / {report.producer_newest_year || '—'}</td><td>{report.coordinator_oldest_year || '—'} / {report.coordinator_newest_year || '—'}</td></tr><tr><th>7</th><td>Condiciones</td><td>{report.producer_condition || '—'}</td><td>{report.coordinator_condition || '—'}</td></tr><tr><th>8</th><td>Respaldo digital</td><td>{report.digital_backup.producer_yes ? 'SÍ' : report.digital_backup.producer_no ? 'NO' : '—'}</td><td>{report.digital_backup.coordinator_yes ? 'SÍ' : report.digital_backup.coordinator_no ? 'NO' : '—'}</td></tr><tr><th>9</th><td>DCAI</td><td>{report.dcai_documentation.producer_yes ? 'SÍ' : report.dcai_documentation.producer_no ? 'NO' : '—'}</td><td>{report.dcai_documentation.coordinator_yes ? 'SÍ' : report.dcai_documentation.coordinator_no ? 'NO' : '—'}</td></tr><tr><th>10</th><td>DCAI sin corrosivos</td><td>{report.dcai_clean.producer_yes ? 'SÍ' : report.dcai_clean.producer_no ? 'NO' : '—'}</td><td>{report.dcai_clean.coordinator_yes ? 'SÍ' : report.dcai_clean.coordinator_no ? 'NO' : '—'}</td></tr></tbody></table>
-              <div className="archive-wizard-signature-preview"><div><b>Área Productora</b><span>{report.producer_area_signature || 'Pendiente'}</span></div><div><b>Responsable de Archivo de Trámite</b><span>{report.rat_signature || 'Pendiente'}</span></div><div><b>Área Coordinadora</b><span>{report.coordinator_signature || 'Pendiente'}</span></div></div>
-            </div>
-          </section>
-        )}
       </div>
 
       <div className="archive-wizard-footer">
