@@ -221,11 +221,15 @@ export function ArchiveReportWizard({ reports, units, areas, onSave, onDelete }:
         ) : (
           <div className="divide-y divide-slate-200 border-y border-slate-200">
             {reports.map((saved) => (
-              <div key={saved.id} className="grid gap-3 px-2 py-4 sm:grid-cols-[1fr_1fr_180px_auto] sm:items-center">
+              <div key={saved.id} className="archive-saved-report-row grid gap-3 px-2 py-4">
                 <div><p className="text-xs text-slate-500">Unidad administrativa</p><p className="text-sm font-semibold">{saved.administrative_unit_name || 'Sin unidad'}</p></div>
                 <div><p className="text-xs text-slate-500">Área productora</p><p className="text-sm">{saved.producing_area_name || 'Sin área'}</p></div>
-                <div><p className="text-xs text-slate-500">Fecha</p><p className="text-sm tabular-nums">{formatReportDate(saved.report_date)}</p></div>
-                <div className="flex items-center justify-end gap-2">
+                <div><p className="text-xs text-slate-500">Fecha de reporte</p><p className="text-sm tabular-nums">{formatReportDate(saved.report_date)}</p></div>
+                <div><p className="text-xs text-slate-500">Fecha de revisión</p><p className="text-sm tabular-nums">{formatReportDate(saved.review_date)}</p></div>
+                <div><p className="text-xs text-slate-500">Años extremas</p><p className="text-sm tabular-nums">{saved.producer_oldest_year || '—'} / {saved.producer_newest_year || '—'}</p></div>
+                <div><p className="text-xs text-slate-500">Condición</p><p className="text-sm">{saved.producer_condition || 'Sin capturar'}</p></div>
+                <div><p className="text-xs text-slate-500">Responsables</p><p className="truncate text-sm">{saved.rat_name || 'RAT pendiente'} · {saved.coordinator_name || 'Revisor pendiente'}</p></div>
+                <div className="archive-saved-actions flex items-center justify-end gap-2">
                   <button type="button" onClick={() => { setReport(reportInput(saved)); setEditingId(saved.id); setStep(0); setError(''); }} className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700">Abrir reporte</button>
                   <button
                     type="button"

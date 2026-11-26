@@ -474,6 +474,31 @@ button {
   border-bottom-color: #7394DB;
 }
 
+.archive-saved-report-row {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) auto;
+  align-items: start;
+}
+
+.archive-saved-actions {
+  min-width: 178px;
+}
+
+@media (max-width: 1200px) {
+  .archive-saved-report-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .archive-saved-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .archive-saved-report-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .archive-wizard-shell {
   min-height: 620px;
   border-top: 1px solid #e2e8f0;
