@@ -1,49 +1,8 @@
-import {
-  AlignmentType,
-  BorderStyle,
-  Document,
-  Packer,
-  Paragraph,
-  Table,
-  TableCell,
-  TableRow,
-  TextRun,
-  VerticalAlign,
-  WidthType,
-} from 'docx';
+import JSZip from 'jszip';
 import type { ArchiveReportInput, ArchiveReportChecklistEntry } from '../types';
 
-const RUBRICS = [
-  '¿Cuenta con expedientes de archivo debidamente integrados?',
-  '¿Los expedientes cuentan con carátula de identificación?',
-  '¿Los expedientes cuentan con cejilla de identificación?',
-  '¿Cuenta con Inventarios Generales de Archivo de Trámite debidamente requisitados?',
-  '¿Lo registrado en los Inventarios Generales de Archivo de Trámite coincide con los expedientes físicos?',
-];
-
-function border() {
-  return { style: BorderStyle.SINGLE, size: 1, color: '111111' };
-}
-
-function borders() {
-  const value = border();
-  return { top: value, bottom: value, left: value, right: value };
-}
-
-function cell(text: string, width: number, options: { bold?: boolean; center?: boolean } = {}) {
-  return new TableCell({
-    width: { size: width, type: WidthType.PERCENTAGE },
-    borders: borders(),
-    verticalAlign: VerticalAlign.CENTER,
-    children: [new Paragraph({
-      alignment: options.center ? AlignmentType.CENTER : AlignmentType.LEFT,
-      children: [new TextRun({ text, bold: options.bold, size: 18 })],
-    })],
-  });
-}
-
-function entryValue(entry: ArchiveReportChecklistEntry | undefined) {
-  return entry ?? {
+function emptyEntry(): ArchiveReportChecklistEntry {
+  return {
     producer_yes: false,
     producer_no: false,
     producer_quantity: '',
@@ -54,90 +13,84 @@ function entryValue(entry: ArchiveReportChecklistEntry | undefined) {
   };
 }
 
+function escapeXml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function fillTableCell(xml: string, rowNumber: number, cellNumber: number, value: unknown): string {
+  const rows = Array.from(xml.matchAll(/<w:tr(?:\s[^>]*)?>[\s\S]*?<\/w:tr>/g));
+  if (rowNumber < 1 || rowNumber > rows.length) return xml;
+
+  const row = rows[rowNumber - 1][0];
+  const cells = Array.from(row.matchAll(/<w:tc(?:\s[^>]*)?>[\s\S]*?<\/w:tc>/g));
+  if (cellNumber < 1 || cellNumber > cells.length) return xml;
+
+  const cell = cells[cellNumber - 1][0];
+  const tcPr = cell.match(/<w:tcPr>[\s\S]*?<\/w:tcPr>/)?.[0] ?? '';
+  const filled = `<w:tc>${tcPr}<w:p><w:r><w:t xml:space="preserve">${escapeXml(value)}</w:t></w:r></w:p></w:tc>`;
+  const filledRow = row.slice(0, (cells[cellNumber - 1].index ?? 0)) + filled + row.slice((cells[cellNumber - 1].index ?? 0) + cell.length);
+  return xml.replace(row, filledRow);
+}
+
 export async function downloadArchiveReportDocx(report: ArchiveReportInput): Promise<void> {
-  const normalizedReport: ArchiveReportInput = {
-    ...report,
-    checklist: Array.from({ length: 5 }, (_, index) => entryValue(report.checklist?.[index])),
-    digital_backup: entryValue(report.digital_backup),
-    dcai_documentation: entryValue(report.dcai_documentation),
-    dcai_clean: entryValue(report.dcai_clean),
-  };
-  report = normalizedReport;
-  const mainRows = RUBRICS.map((rubric, index) => {
-    const entry = entryValue(report.checklist[index]);
-    return new TableRow({ children: [
-      cell(String(index + 1), 4, { center: true }),
-      cell(rubric, 35),
-      cell(`${entry.producer_yes ? 'X' : ''}  ${entry.producer_no ? 'X' : ''}  ${entry.producer_quantity}`, 17, { center: true }),
-      cell(`${entry.coordinator_yes ? 'X' : ''}  ${entry.coordinator_no ? 'X' : ''}  ${entry.coordinator_quantity}`, 17, { center: true }),
-      cell(entry.observations, 27),
-    ] });
+  const templateUrl = `${import.meta.env.BASE_URL}bases/Reporte_Archivos_de_Tramite.docx`;
+  const response = await fetch(templateUrl);
+  if (!response.ok) throw new Error('No se encontró la plantilla DOCX oficial.');
+
+  const zip = await JSZip.loadAsync(await response.arrayBuffer());
+  const documentFile = zip.file('word/document.xml');
+  if (!documentFile) throw new Error('La plantilla DOCX no contiene document.xml.');
+
+  let xml = await documentFile.async('string');
+  const checklist = Array.from({ length: 5 }, (_, index) => ({ ...emptyEntry(), ...(report.checklist?.[index] ?? {}) }));
+  const digitalBackup = { ...emptyEntry(), ...(report.digital_backup ?? {}) };
+  const dcaiDocumentation = { ...emptyEntry(), ...(report.dcai_documentation ?? {}) };
+  const dcaiClean = { ...emptyEntry(), ...(report.dcai_clean ?? {}) };
+
+  xml = fillTableCell(xml, 2, 2, report.administrative_unit_name);
+  xml = fillTableCell(xml, 3, 2, report.producing_area_name);
+  xml = fillTableCell(xml, 4, 2, report.report_date);
+  xml = fillTableCell(xml, 5, 2, report.review_date);
+
+  checklist.forEach((entry, index) => {
+    const row = 8 + index;
+    xml = fillTableCell(xml, row, 3, entry.producer_yes ? 'X' : '');
+    xml = fillTableCell(xml, row, 4, entry.producer_no ? 'X' : '');
+    xml = fillTableCell(xml, row, 5, entry.producer_quantity);
+    xml = fillTableCell(xml, row, 6, entry.coordinator_yes ? 'X' : '');
+    xml = fillTableCell(xml, row, 7, entry.coordinator_no ? 'X' : '');
+    xml = fillTableCell(xml, row, 8, entry.coordinator_quantity);
+    xml = fillTableCell(xml, row, 9, entry.observations);
   });
 
-  const doc = new Document({ sections: [{ properties: {}, children: [
-    new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'REPORTE DE ARCHIVOS DE TRÁMITE', bold: true, size: 28 })] }),
-    new Paragraph({ children: [new TextRun({ text: `NOMBRE DE LA UNIDAD ADMINISTRATIVA: ${report.administrative_unit_name || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: `NOMBRE DEL ÁREA PRODUCTORA: ${report.producing_area_name || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: `Fecha de reporte Área Productora: ${report.report_date || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: `Fecha de revisión Área Coordinadora de Archivos: ${report.review_date || ''}` })] }),
-    new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
-      new TableRow({ children: [
-        cell('No.', 4, { bold: true, center: true }),
-        cell('Rubro Verificado', 35, { bold: true, center: true }),
-        cell('Área Productora\nSÍ  NO  Cantidad', 17, { bold: true, center: true }),
-        cell('Área Coordinadora de Archivos\nSÍ  NO  Cantidad', 17, { bold: true, center: true }),
-        cell('Observaciones', 27, { bold: true, center: true }),
-      ] }),
-      ...mainRows,
-      new TableRow({ children: [
-        cell('6', 4, { center: true }),
-        cell('Refiera los años que abarca la documentación que se resguarda en el archivo de trámite (fechas extremas)', 35),
-        cell(`Más antigua: ${report.producer_oldest_year || ''}\nMás reciente: ${report.producer_newest_year || ''}`, 17),
-        cell(`Más antigua: ${report.coordinator_oldest_year || ''}\nMás reciente: ${report.coordinator_newest_year || ''}`, 17),
-        cell('', 27),
-      ] }),
-      new TableRow({ children: [
-        cell('7', 4, { center: true }),
-        cell('¿En qué condiciones se encuentran los documentos?', 35),
-        cell(report.producer_condition || '', 17, { center: true }),
-        cell(report.coordinator_condition || '', 17, { center: true }),
-        cell('', 27),
-      ] }),
-      new TableRow({ children: [
-        cell('8', 4, { center: true }),
-        cell('¿Los expedientes cerrados cuentan con respaldo digital? (Expedientes escaneados)', 35),
-        cell(report.digital_backup.producer_yes ? 'SÍ' : report.digital_backup.producer_no ? 'NO' : '', 17, { center: true }),
-        cell(report.digital_backup.coordinator_yes ? 'SÍ' : report.digital_backup.coordinator_no ? 'NO' : '', 17, { center: true }),
-        cell(report.digital_backup.observations || '', 27),
-      ] }),
-      new TableRow({ children: [
-        cell('9', 4, { center: true }),
-        cell('¿Cuenta con documentación de comprobación administrativa inmediata (DCAI)?', 35),
-        cell(`${report.dcai_documentation.producer_yes ? 'SÍ' : report.dcai_documentation.producer_no ? 'NO' : ''} ${report.dcai_documentation.producer_quantity || ''}`, 17),
-        cell(`${report.dcai_documentation.coordinator_yes ? 'SÍ' : report.dcai_documentation.coordinator_no ? 'NO' : ''} ${report.dcai_documentation.coordinator_quantity || ''}`, 17),
-        cell(report.dcai_documentation.observations || '', 27),
-      ] }),
-      new TableRow({ children: [
-        cell('10', 4, { center: true }),
-        cell('¿La DCAI se encuentra limpia de material corrosivo?', 35),
-        cell(report.dcai_clean.producer_yes ? 'SÍ' : report.dcai_clean.producer_no ? 'NO' : '', 17, { center: true }),
-        cell(report.dcai_clean.coordinator_yes ? 'SÍ' : report.dcai_clean.coordinator_no ? 'NO' : '', 17, { center: true }),
-        cell(report.dcai_clean.observations || '', 27),
-      ] }),
-    ] }),
-    new Paragraph({ children: [new TextRun({ text: `Área Productora — Nombre: ${report.producer_area_name || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: `Cargo: ${report.producer_area_position || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: 'Firma: ______________________________' })] }),
-    new Paragraph({ children: [new TextRun({ text: `Responsable de Archivo de Trámite — Nombre: ${report.rat_name || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: `Cargo: ${report.rat_position || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: 'Firma: ______________________________' })] }),
-    new Paragraph({ children: [new TextRun({ text: `Revisor Adscrito al Área Coordinadora — Nombre: ${report.coordinator_name || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: `Cargo: ${report.coordinator_position || ''}` })] }),
-    new Paragraph({ children: [new TextRun({ text: 'Firma: ______________________________' })] }),
-  ] }] });
+  xml = fillTableCell(xml, 13, 3, report.producer_oldest_year);
+  xml = fillTableCell(xml, 13, 4, report.producer_newest_year);
+  xml = fillTableCell(xml, 13, 5, report.coordinator_oldest_year);
+  xml = fillTableCell(xml, 13, 6, report.coordinator_newest_year);
 
-  const blob = await Packer.toBlob(doc);
-  const url = URL.createObjectURL(blob);
+  xml = xml.replace(/Responsable de Archivo de Trámite/g, escapeXml(report.rat_name || 'Responsable de Archivo de Trámite'));
+  xml = xml.replace(/Revisor Adscrito al Área Coordinadora de Archivos/g, escapeXml(report.coordinator_name || 'Revisor Adscrito al Área Coordinadora de Archivos'));
+
+  const extraRows = `<w:p><w:r><w:t>8. ¿Los expedientes cerrados cuentan con respaldo digital? (Expedientes escaneados): ${digitalBackup.producer_yes ? 'SÍ' : digitalBackup.producer_no ? 'NO' : ''}</w:t></w:r></w:p>
+<w:p><w:r><w:t>Observaciones coordinadora: ${escapeXml(digitalBackup.observations || '')}</w:t></w:r></w:p>
+<w:p><w:r><w:t>9. ¿Cuenta con DCAI? ${dcaiDocumentation.producer_yes ? 'SÍ' : dcaiDocumentation.producer_no ? 'NO' : ''}; Cajas área productora: ${escapeXml(dcaiDocumentation.producer_quantity || '')}; Cajas coordinadora: ${escapeXml(dcaiDocumentation.coordinator_quantity || '')}</w:t></w:r></w:p>
+<w:p><w:r><w:t>Observaciones DCAI: ${escapeXml(dcaiDocumentation.observations || '')}</w:t></w:r></w:p>
+<w:p><w:r><w:t>10. ¿La DCAI está limpia de material corrosivo? ${dcaiClean.producer_yes ? 'SÍ' : dcaiClean.producer_no ? 'NO' : ''}</w:t></w:r></w:p>
+<w:p><w:r><w:t>Área Productora — Nombre: ${escapeXml(report.producer_area_name || '')}; Cargo: ${escapeXml(report.producer_area_position || '')}</w:t></w:r></w:p>
+<w:p><w:r><w:t>Responsable de Archivo de Trámite — Nombre: ${escapeXml(report.rat_name || '')}; Cargo: ${escapeXml(report.rat_position || '')}</w:t></w:r></w:p>
+<w:p><w:r><w:t>Revisor Adscrito al Área Coordinadora — Nombre: ${escapeXml(report.coordinator_name || '')}; Cargo: ${escapeXml(report.coordinator_position || '')}</w:t></w:r></w:p>
+<w:p><w:r><w:t>Firmas: ______________________________  ______________________________  ______________________________</w:t></w:r></w:p>`;
+
+  xml = xml.replace(/<\/w:sectPr>/, `${extraRows}</w:sectPr>`);
+  zip.file('word/document.xml', xml);
+
+  const output = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(output);
   const link = document.createElement('a');
   link.href = url;
   link.download = `Reporte_Archivos_Tramite_${report.report_date || new Date().toISOString().slice(0, 10)}.docx`;
