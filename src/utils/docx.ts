@@ -82,7 +82,8 @@ export async function downloadArchiveReportDocx(report: ArchiveReportInput): Pro
   xml = fillTableCell(xml, 13, 4, report.producer_newest_year);
   xml = fillTableCell(xml, 13, 5, report.coordinator_oldest_year);
   xml = fillTableCell(xml, 13, 6, report.coordinator_newest_year);
-  xml = fillTableCell(xml, 14, 3, report.producer_condition ? `${report.producer_condition}.` : '');
+  xml = fillTableCell(xml, 14, 3, report.producer_condition ? `X  ${report.producer_condition}.` : '');
+  xml = fillTableCell(xml, 14, 4, report.coordinator_condition ? `X  ${report.coordinator_condition}.` : '');
 
   xml = xml.replace(/Responsable de Archivo de Trámite/g, escapeXml(`${report.rat_name || ''}${report.rat_position ? ` — ${report.rat_position}` : ''}` || 'Responsable de Archivo de Trámite'));
   xml = xml.replace(/Revisor Adscrito al Área Coordinadora de Archivos/g, escapeXml(`${report.coordinator_name || ''}${report.coordinator_position ? ` — ${report.coordinator_position}` : ''}` || 'Revisor Adscrito al Área Coordinadora de Archivos'));
