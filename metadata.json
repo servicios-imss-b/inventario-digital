@@ -1,0 +1,6 @@
+{
+  "name": "Archivo Digital y Localización Física",
+  "description": "Sistema digital de inventario de carpetas físicas y localización visual en mobiliario de archivo administrativo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

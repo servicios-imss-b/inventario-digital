@@ -1,0 +1,540 @@
+@import "tailwindcss";
+
+:root {
+  --archive-blue: #7394DB;
+  --archive-blue-soft: #EDF2FD;
+  --archive-blue-hover: #607FBE;
+}
+
+button {
+  border-radius: 9999px;
+}
+
+.bg-blue-800,
+.bg-blue-900,
+.bg-blue-700,
+.bg-blue-600 {
+  background-color: var(--archive-blue) !important;
+}
+
+.hover\:bg-blue-900:hover,
+.hover\:bg-blue-800:hover,
+.hover\:bg-blue-700:hover,
+.hover\:bg-blue-600:hover {
+  background-color: var(--archive-blue-hover) !important;
+}
+
+.text-blue-900,
+.text-blue-800,
+.text-blue-700,
+.text-blue-600 {
+  color: var(--archive-blue) !important;
+}
+
+.bg-blue-50,
+.bg-blue-50\/70,
+.hover\:bg-blue-50:hover {
+  background-color: var(--archive-blue-soft) !important;
+}
+
+.border-blue-800,
+.border-blue-700,
+.border-blue-600,
+.focus\:border-blue-700:focus,
+.hover\:border-blue-700:hover,
+.hover\:border-blue-600:hover {
+  border-color: var(--archive-blue) !important;
+}
+
+.focus\:ring-blue-700:focus {
+  --tw-ring-color: var(--archive-blue) !important;
+}
+
+@theme {
+  --font-display: "Libre Baskerville", Georgia, serif;
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    color: #0f172a;
+    background-color: #f8fafc;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle mahogany wood grain for the physical cabinet representation */
+.wood-frame {
+  background-color: #4a1c17;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.14) 50%, rgba(255, 255, 255, 0.02) 100%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(35, 10, 8, 0.28) 0px,
+      rgba(92, 36, 30, 0.12) 6px,
+      rgba(45, 14, 11, 0.25) 14px
+    );
+}
+
+.wood-shelf-plank {
+  background: linear-gradient(180deg, #632720 0%, #491b16 45%, #2f100d 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 6px 12px rgba(15, 23, 42, 0.24);
+}
+
+.cabinet-recess {
+  background: linear-gradient(180deg, #270e0b 0%, #371511 18%, #3c1813 85%, #240c0a 100%);
+  box-shadow:
+    inset 0 8px 18px rgba(0, 0, 0, 0.55),
+    inset 4px 0 10px rgba(0, 0, 0, 0.35),
+    inset -4px 0 10px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes spotlight-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.95), 0 0 22px rgba(245, 158, 11, 0.75);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(251, 191, 36, 1), 0 0 34px rgba(245, 158, 11, 0.95);
+  }
+}
+
+.folder-spotlight {
+  animation: spotlight-pulse 1.6s ease-in-out infinite;
+}
+
+.archive-report-paper {
+  width: 100%;
+  min-width: 900px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #111;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+}
+
+.archive-report-title {
+  margin: 0 0 18px;
+  border: 1px solid #111;
+  background: #d9d9d9;
+  padding: 5px 8px;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.archive-report-meta-table,
+.archive-report-dates-table,
+.archive-report-checklist,
+.archive-report-years {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.archive-report-meta-table {
+  width: 100%;
+}
+
+.archive-report-meta-table th,
+.archive-report-meta-table td,
+.archive-report-dates-table th,
+.archive-report-dates-table td,
+.archive-report-checklist th,
+.archive-report-checklist td,
+.archive-report-years th,
+.archive-report-years td {
+  border: 1px solid #111;
+  padding: 4px 7px;
+}
+
+.archive-report-meta-table th {
+  width: 33%;
+  text-align: left;
+  font-weight: 700;
+}
+
+.archive-report-field,
+.archive-report-entry {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.archive-report-field {
+  padding: 5px 6px;
+}
+
+.archive-report-field:focus,
+.archive-report-entry:focus {
+  outline: 1px solid #2563eb;
+}
+
+.archive-report-dates-table {
+  width: 64%;
+  margin: 18px 0 18px auto;
+}
+
+.archive-report-dates-table th {
+  width: 58%;
+  text-align: left;
+  font-weight: 400;
+}
+
+.archive-report-dates-table tr:last-child th,
+.archive-report-dates-table tr:last-child td {
+  background: #d9d9d9;
+  color: #2877a8;
+}
+
+.archive-report-checklist {
+  width: 100%;
+}
+
+.archive-report-checklist .report-col-number { width: 4%; }
+.archive-report-checklist .report-col-rubric { width: 36%; }
+.archive-report-checklist .report-col-yes { width: 5.5%; }
+.archive-report-checklist .report-col-no { width: 5.5%; }
+.archive-report-checklist .report-col-quantity { width: 9%; }
+.archive-report-checklist .report-col-observations { width: 20%; }
+
+.archive-report-group-head th {
+  border: 0;
+  padding: 5px 3px;
+  font-size: 21px;
+  text-align: center;
+}
+
+.archive-report-group-head th:last-child {
+  border-left: 2px solid #111;
+  color: #2877a8;
+}
+
+.archive-report-column-head th {
+  background: #d9d9d9;
+  text-align: center;
+  font-weight: 700;
+}
+
+.archive-report-checklist tr > :nth-child(6),
+.archive-report-years tr > :nth-child(5) {
+  border-left-width: 2px;
+}
+
+.archive-report-column-head th:nth-child(n + 6),
+.archive-report-checklist tbody td:nth-child(n + 6),
+.archive-report-years tr > :nth-child(n + 5) {
+  color: #2877a8;
+}
+
+.archive-report-row-number {
+  text-align: center;
+  vertical-align: top;
+  font-size: 13px;
+}
+
+.archive-report-rubric {
+  line-height: 1.25;
+}
+
+.archive-report-answer {
+  padding: 3px !important;
+  text-align: center;
+}
+
+.archive-report-answer label {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+}
+
+.archive-report-answer input {
+  width: 14px;
+  height: 14px;
+  accent-color: #2563eb;
+}
+
+.archive-report-print-mark {
+  display: none;
+}
+
+.archive-report-quantity {
+  height: 28px;
+  padding: 2px 3px;
+  text-align: center;
+}
+
+.archive-report-observation {
+  min-height: 30px;
+  padding: 3px;
+  resize: vertical;
+}
+
+.archive-report-years {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.archive-report-years .years-col-number { width: 4%; }
+.archive-report-years .years-col-description { width: 36%; }
+.archive-report-years .years-col-observations { width: 20%; }
+
+.archive-report-years th {
+  text-align: left;
+  vertical-align: top;
+}
+
+.archive-report-years td {
+  line-height: 1.35;
+}
+
+.archive-report-year {
+  height: 28px;
+  margin-top: 7px;
+  border: 0;
+  border-bottom: 1px solid #111;
+  border-radius: 0;
+  padding: 2px;
+}
+
+.archive-report-condition {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.archive-report-condition th,
+.archive-report-condition td {
+  border: 1px solid #111;
+  padding: 6px;
+}
+
+.archive-report-condition th {
+  width: 4%;
+  text-align: center;
+}
+
+.archive-report-condition td:nth-child(2) {
+  width: 36%;
+}
+
+.archive-report-condition-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.archive-field-instructions {
+  position: relative;
+  display: block;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.archive-field-instructions > button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #7394DB;
+  font-size: 9px;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.archive-field-instructions-popover {
+  position: absolute;
+  z-index: 80;
+  bottom: calc(100% + 6px);
+  left: 0;
+  width: 280px;
+  max-width: 70vw;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+  padding: 9px 10px;
+  color: #334155;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.archive-report-condition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 8px;
+  font-size: 9px;
+}
+
+.archive-report-condition-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.archive-report-extended-rubrics {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 9px;
+}
+
+.archive-report-extended-rubrics th,
+.archive-report-extended-rubrics td {
+  border: 1px solid #111;
+  padding: 5px;
+  vertical-align: middle;
+}
+
+.archive-report-extended-rubrics thead th {
+  background: #d9d9d9;
+  text-align: center;
+}
+
+.archive-report-extended-rubrics th:first-child {
+  width: 4%;
+  text-align: center;
+}
+
+.archive-report-extended-rubrics label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 7px;
+}
+
+.archive-report-extended-rubrics td:last-child,
+.archive-report-extended-rubrics th:last-child {
+  color: #2877a8;
+  border-left-width: 2px;
+}
+
+.archive-report-signatures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 48px;
+  margin-top: 22px;
+}
+
+.archive-report-signatures label {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.archive-report-signature-input {
+  height: 28px;
+  border: 0;
+  border-bottom: 1px solid #111;
+  background: transparent;
+  text-align: center;
+  font: inherit;
+}
+
+.archive-report-signature-input:focus {
+  outline: 0;
+  border-bottom-color: #7394DB;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 7mm;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 0 !important;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .archive-report-paper,
+  .archive-report-paper * {
+    visibility: visible !important;
+  }
+
+  .archive-report-screen-only {
+    display: none !important;
+  }
+
+  .archive-report-paper {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    font-size: 9pt !important;
+  }
+
+  .archive-report-title {
+    margin-bottom: 12px !important;
+    font-size: 12pt !important;
+  }
+
+  .archive-report-field,
+  .archive-report-entry {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #111 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    resize: none !important;
+  }
+
+  .archive-report-year {
+    border-bottom: 1px solid #111 !important;
+  }
+
+  .archive-report-answer input {
+    display: none !important;
+  }
+
+  .archive-report-print-mark {
+    display: inline !important;
+    font-weight: 700;
+  }
+
+  .archive-report-checklist tr,
+  .archive-report-years tr {
+    break-inside: avoid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder-spotlight {
+    animation: none;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 1);
+  }
+}
