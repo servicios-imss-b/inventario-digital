@@ -76,6 +76,16 @@ function emptyEntry(): ArchiveReportChecklistEntry {
   };
 }
 
+function formatReportDate(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function blankReport(unitName: string): ArchiveReportInput {
   return {
     administrative_unit_name: unitName,
@@ -109,8 +119,8 @@ function reportInput(report: ArchiveReportRecord): ArchiveReportInput {
   return {
     administrative_unit_name: report.administrative_unit_name,
     producing_area_name: report.producing_area_name,
-    report_date: report.report_date,
-    review_date: report.review_date,
+    report_date: formatReportDate(report.report_date),
+    review_date: formatReportDate(report.review_date),
     checklist: Array.from({ length: 5 }, (_, index) => report.checklist[index] ?? emptyEntry()),
     producer_oldest_year: report.producer_oldest_year,
     producer_newest_year: report.producer_newest_year,
@@ -214,7 +224,7 @@ export function ArchiveReportWizard({ reports, units, areas, onSave, onDelete }:
               <div key={saved.id} className="grid gap-3 px-2 py-4 sm:grid-cols-[1fr_1fr_180px_auto] sm:items-center">
                 <div><p className="text-xs text-slate-500">Unidad administrativa</p><p className="text-sm font-semibold">{saved.administrative_unit_name || 'Sin unidad'}</p></div>
                 <div><p className="text-xs text-slate-500">Área productora</p><p className="text-sm">{saved.producing_area_name || 'Sin área'}</p></div>
-                <div><p className="text-xs text-slate-500">Fecha</p><p className="text-sm tabular-nums">{saved.report_date || '—'}</p></div>
+                <div><p className="text-xs text-slate-500">Fecha</p><p className="text-sm tabular-nums">{formatReportDate(saved.report_date)}</p></div>
                 <div className="flex items-center justify-end gap-2">
                   <button type="button" onClick={() => { setReport(reportInput(saved)); setEditingId(saved.id); setStep(0); setError(''); }} className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700">Abrir reporte</button>
                   <button

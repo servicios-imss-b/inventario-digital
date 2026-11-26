@@ -13,6 +13,16 @@ function emptyEntry(): ArchiveReportChecklistEntry {
   };
 }
 
+function formatDocxDate(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function escapeXml(value: unknown): string {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -54,8 +64,8 @@ export async function downloadArchiveReportDocx(report: ArchiveReportInput): Pro
 
   xml = fillTableCell(xml, 2, 2, report.administrative_unit_name);
   xml = fillTableCell(xml, 3, 2, report.producing_area_name);
-  xml = fillTableCell(xml, 4, 2, report.report_date);
-  xml = fillTableCell(xml, 5, 2, report.review_date);
+  xml = fillTableCell(xml, 4, 2, formatDocxDate(report.report_date));
+  xml = fillTableCell(xml, 5, 2, formatDocxDate(report.review_date));
 
   checklist.forEach((entry, index) => {
     const row = 8 + index;
@@ -72,28 +82,20 @@ export async function downloadArchiveReportDocx(report: ArchiveReportInput): Pro
   xml = fillTableCell(xml, 13, 4, report.producer_newest_year);
   xml = fillTableCell(xml, 13, 5, report.coordinator_oldest_year);
   xml = fillTableCell(xml, 13, 6, report.coordinator_newest_year);
+  xml = fillTableCell(xml, 14, 3, report.producer_condition ? `${report.producer_condition}.` : '');
 
-  xml = xml.replace(/Responsable de Archivo de Trámite/g, escapeXml(report.rat_name || 'Responsable de Archivo de Trámite'));
-  xml = xml.replace(/Revisor Adscrito al Área Coordinadora de Archivos/g, escapeXml(report.coordinator_name || 'Revisor Adscrito al Área Coordinadora de Archivos'));
+  xml = xml.replace(/Responsable de Archivo de Trámite/g, escapeXml(`${report.rat_name || ''}${report.rat_position ? ` — ${report.rat_position}` : ''}` || 'Responsable de Archivo de Trámite'));
+  xml = xml.replace(/Revisor Adscrito al Área Coordinadora de Archivos/g, escapeXml(`${report.coordinator_name || ''}${report.coordinator_position ? ` — ${report.coordinator_position}` : ''}` || 'Revisor Adscrito al Área Coordinadora de Archivos'));
+  xml = xml.replace(/Nombre y Firma/g, escapeXml(`Nombre y Cargo`));
 
-  const extraRows = `<w:p><w:r><w:t>8. ¿Los expedientes cerrados cuentan con respaldo digital? (Expedientes escaneados): ${digitalBackup.producer_yes ? 'SÍ' : digitalBackup.producer_no ? 'NO' : ''}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Observaciones coordinadora: ${escapeXml(digitalBackup.observations || '')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>9. ¿Cuenta con DCAI? ${dcaiDocumentation.producer_yes ? 'SÍ' : dcaiDocumentation.producer_no ? 'NO' : ''}; Cajas área productora: ${escapeXml(dcaiDocumentation.producer_quantity || '')}; Cajas coordinadora: ${escapeXml(dcaiDocumentation.coordinator_quantity || '')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Observaciones DCAI: ${escapeXml(dcaiDocumentation.observations || '')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>10. ¿La DCAI está limpia de material corrosivo? ${dcaiClean.producer_yes ? 'SÍ' : dcaiClean.producer_no ? 'NO' : ''}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Área Productora — Nombre: ${escapeXml(report.producer_area_name || '')}; Cargo: ${escapeXml(report.producer_area_position || '')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Responsable de Archivo de Trámite — Nombre: ${escapeXml(report.rat_name || '')}; Cargo: ${escapeXml(report.rat_position || '')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Revisor Adscrito al Área Coordinadora — Nombre: ${escapeXml(report.coordinator_name || '')}; Cargo: ${escapeXml(report.coordinator_position || '')}</w:t></w:r></w:p>
-<w:p><w:r><w:t>Firmas: ______________________________  ______________________________  ______________________________</w:t></w:r></w:p>`;
-
-  xml = xml.replace(/<\/w:sectPr>/, `${extraRows}</w:sectPr>`);
   zip.file('word/document.xml', xml);
 
   const output = await zip.generateAsync({ type: 'blob' });
   const url = URL.createObjectURL(output);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `Reporte_Archivos_Tramite_${report.report_date || new Date().toISOString().slice(0, 10)}.docx`;
+  const safeDate = formatDocxDate(report.report_date) || new Date().toISOString().slice(0, 10);
+  link.download = `Reporte_Archivos_Tramite_${safeDate}.docx`;
   document.body.appendChild(link);
   link.click();
   link.remove();

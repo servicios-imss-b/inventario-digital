@@ -497,25 +497,6 @@ app.post('/api/reports/docx', async (req: Request, res: Response) => {
     xml = setDocxTableCell(xml, 14, 3, report.producer_condition ? `${report.producer_condition}.` : '');
 
     const conditionText = escapeXmlText(report.coordinator_condition ? `${report.coordinator_condition}.` : '');
-    xml = xml.replace(/<w:tc>\s*<w:tcPr>[\s\S]*?<\/w:tcPr>\s*<w:p[^>]*>[\s\S]*?<\/w:p>\s*<\/w:tc>/g, (match) => match);
-
-    const digital = report.digital_backup ?? {};
-    const dcai = report.dcai_documentation ?? {};
-    const dcaiClean = report.dcai_clean ?? {};
-    const extraRowsXml = `<w:p><w:r><w:rPr><w:b/><w:sz w:val="22"/></w:rPr><w:t xml:space="preserve">Rubros adicionales</w:t></w:r></w:p>
-      <w:tbl><w:tblPr><w:tblBorders><w:top w:val="single" w:sz="4"/><w:left w:val="single" w:sz="4"/><w:bottom w:val="single" w:sz="4"/><w:right w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr>
-      <w:tr><w:tc><w:p><w:r><w:t>8</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>¿Los expedientes cerrados cuentan con respaldo digital? (Expedientes escaneados)</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Productora: ${digital.producer_yes ? 'SÍ' : ''} ${digital.producer_no ? 'NO' : ''}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Coordinadora: ${digital.coordinator_yes ? 'SÍ' : ''} ${digital.coordinator_no ? 'NO' : ''} Observaciones: ${escapeXmlText(digital.observations || '')}</w:t></w:r></w:p></w:tc></w:tr>
-      <w:tr><w:tc><w:p><w:r><w:t>9</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>¿Cuenta con documentación de comprobación administrativa inmediata (DCAI)?</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Productora: ${dcai.producer_yes ? 'SÍ' : ''} ${dcai.producer_no ? 'NO' : ''} Cajas: ${escapeXmlText(dcai.producer_quantity || '')}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Coordinadora: ${dcai.coordinator_yes ? 'SÍ' : ''} ${dcai.coordinator_no ? 'NO' : ''} Cajas: ${escapeXmlText(dcai.coordinator_quantity || '')} Observaciones: ${escapeXmlText(dcai.observations || '')}</w:t></w:r></w:p></w:tc></w:tr>
-      <w:tr><w:tc><w:p><w:r><w:t>10</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>¿La DCAI se encuentra limpia de material corrosivo?</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Productora: ${dcaiClean.producer_yes ? 'SÍ' : ''} ${dcaiClean.producer_no ? 'NO' : ''}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t xml:space="preserve">Área Coordinadora: ${dcaiClean.coordinator_yes ? 'SÍ' : ''} ${dcaiClean.coordinator_no ? 'NO' : ''} Observaciones: ${escapeXmlText(dcaiClean.observations || '')} Condición coordinadora: ${conditionText}</w:t></w:r></w:p></w:tc></w:tr>
-      </w:tbl>
-      <w:p><w:r><w:t xml:space="preserve">Área Productora — Nombre: ${escapeXmlText(report.producer_area_name || '')} | Cargo: ${escapeXmlText(report.producer_area_position || '')}</w:t></w:r></w:p>
-      <w:p><w:r><w:t xml:space="preserve">Responsable de Archivo de Trámite — Nombre: ${escapeXmlText(report.rat_name || '')} | Cargo: ${escapeXmlText(report.rat_position || '')}</w:t></w:r></w:p>
-      <w:p><w:r><w:t xml:space="preserve">Revisor Adscrito al Área Coordinadora — Nombre: ${escapeXmlText(report.coordinator_name || '')} | Cargo: ${escapeXmlText(report.coordinator_position || '')}</w:t></w:r></w:p>
-      <w:p><w:r><w:t>Firma: ______________________________</w:t></w:r></w:p>
-      <w:p><w:r><w:t>Firma: ______________________________</w:t></w:r></w:p>
-      <w:p><w:r><w:t>Firma: ______________________________</w:t></w:r></w:p>`;
-    xml = xml.replace('</w:body>', `${extraRowsXml}</w:body>`);
-
     xml = xml
       .replace(/Responsable de Archivo de Trámite/g, escapeXmlText(report.producer_signature || 'Responsable de Archivo de Trámite'))
       .replace(/Revisor Adscrito al Área Coordinadora de Archivos/g, escapeXmlText(report.coordinator_signature || 'Revisor Adscrito al Área Coordinadora de Archivos'));
