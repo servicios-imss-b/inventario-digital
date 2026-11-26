@@ -17,6 +17,7 @@ import {
   createCabinet,
   createFolder,
   deleteEmptySection,
+  deleteArchiveReport,
   deleteFolder,
   fetchBootstrap,
   importFoldersBatch,
@@ -172,6 +173,12 @@ export default function App() {
     await refreshData();
     showToast(`Se importaron ${res.imported} carpeta(s) desde Excel.`);
     return res.imported;
+  }
+
+  async function handleDeleteArchiveReport(id: number) {
+    await deleteArchiveReport(id);
+    await refreshData();
+    showToast('Reporte eliminado correctamente.');
   }
 
   async function handleSaveArchiveReport(input: ArchiveReportInput, id: number | null) {
@@ -400,6 +407,7 @@ export default function App() {
                   units={units}
                   areas={areas}
                   onSave={handleSaveArchiveReport}
+                  onDelete={handleDeleteArchiveReport}
                 />
               )}
 

@@ -7,6 +7,7 @@ import {
   FileDown,
   FilePlus2,
   Save,
+  Trash2,
   X,
 } from 'lucide-react';
 import { downloadArchiveReportDocx } from '../utils/docx';
@@ -24,6 +25,7 @@ interface Props {
   units: AdministrativeUnit[];
   areas: ProducingArea[];
   onSave: (input: ArchiveReportInput, id: number | null) => Promise<ArchiveReportRecord>;
+  onDelete: (id: number) => Promise<void>;
 }
 
 const STEPS = [
@@ -140,7 +142,7 @@ function Instruction({ instructionKey }: { instructionKey: string }) {
   );
 }
 
-export function ArchiveReportWizard({ reports, units, areas, onSave }: Props) {
+export function ArchiveReportWizard({ reports, units, areas, onSave, onDelete }: Props) {
   const [report, setReport] = useState<ArchiveReportInput | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [step, setStep] = useState(0);
@@ -213,7 +215,25 @@ export function ArchiveReportWizard({ reports, units, areas, onSave }: Props) {
                 <div><p className="text-xs text-slate-500">Unidad administrativa</p><p className="text-sm font-semibold">{saved.administrative_unit_name || 'Sin unidad'}</p></div>
                 <div><p className="text-xs text-slate-500">Área productora</p><p className="text-sm">{saved.producing_area_name || 'Sin área'}</p></div>
                 <div><p className="text-xs text-slate-500">Fecha</p><p className="text-sm tabular-nums">{saved.report_date || '—'}</p></div>
-                <button type="button" onClick={() => { setReport(reportInput(saved)); setEditingId(saved.id); setStep(0); setError(''); }} className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700">Abrir reporte</button>
+                <div className="flex items-center justify-end gap-2">
+                  <button type="button" onClick={() => { setReport(reportInput(saved)); setEditingId(saved.id); setStep(0); setError(''); }} className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700">Abrir reporte</button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!window.confirm(`¿Eliminar el reporte de ${saved.administrative_unit_name || 'esta unidad'}?`)) return;
+                      try {
+                        await onDelete(saved.id);
+                        setError('');
+                        setReport(null);
+                      } catch (deleteError) {
+                        setError(deleteError instanceof Error ? deleteError.message : 'No se pudo eliminar el reporte.');
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Eliminar
+                  </button>
+                </div>
               </div>
             ))}
           </div>

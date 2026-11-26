@@ -41,6 +41,10 @@ export async function saveArchiveReport(
   });
 }
 
+export async function deleteArchiveReport(id: number): Promise<void> {
+  await sheetsPost<{ ok: boolean }>('deleteReport', { id });
+}
+
 export async function createFolder(input: FolderInput): Promise<FolderRecord> {
   return sheetsPost<FolderRecord>('saveFolder', { folder: input });
 }
