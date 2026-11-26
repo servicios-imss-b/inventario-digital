@@ -94,7 +94,7 @@ function fillSignatureCell(xml: string, cellNumber: number, name: string, positi
 }
 
 export async function downloadArchiveReportDocx(report: ArchiveReportInput): Promise<void> {
-  const templateUrl = `${import.meta.env.BASE_URL}bases/Reporte_Archivos_de_Tramite.docx`;
+  const templateUrl = `${import.meta.env?.BASE_URL ?? '/'}bases/Reporte_Archivos_de_Tramite.docx`;
   const response = await fetch(templateUrl);
   if (!response.ok) throw new Error('No se encontró la plantilla DOCX oficial.');
 
@@ -130,8 +130,8 @@ export async function downloadArchiveReportDocx(report: ArchiveReportInput): Pro
   xml = fillTableCell(xml, 13, 6, report.coordinator_newest_year);
   const conditionOptions = ['Buenas', 'Regulares', 'Malas', 'Pésimas'];
   for (let option = 0; option < conditionOptions.length; option++) {
-    setTableCellCheckbox(xml, 14, 3, option + 1, report.producer_condition === conditionOptions[option]);
-    setTableCellCheckbox(xml, 14, 4, option + 1, report.coordinator_condition === conditionOptions[option]);
+    xml = setTableCellCheckbox(xml, 14, 3, option + 1, report.producer_condition === conditionOptions[option]);
+    xml = setTableCellCheckbox(xml, 14, 4, option + 1, report.coordinator_condition === conditionOptions[option]);
   }
 
   const digital = { ...emptyEntry(), ...(report.digital_backup ?? {}) };
