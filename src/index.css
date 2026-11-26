@@ -436,6 +436,22 @@ button {
   margin-top: 22px;
 }
 
+.archive-wizard-grid select {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #94a3b8;
+  background: transparent;
+  padding: 8px 2px;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 400;
+}
+
+.archive-wizard-grid select:focus {
+  border-bottom-color: #7394DB;
+  outline: 0;
+}
+
 .archive-report-signatures label {
   display: flex;
   flex-direction: column;

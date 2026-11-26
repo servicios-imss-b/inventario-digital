@@ -10,6 +10,7 @@ import {
   X,
 } from 'lucide-react';
 import { downloadArchiveReportDocx } from '../utils/docx';
+import { archiveYearOptions } from '../utils/years';
 import type {
   AdministrativeUnit,
   ArchiveReportChecklistEntry,
@@ -288,10 +289,19 @@ export function ArchiveReportWizard({ reports, units, areas, onSave }: Props) {
             <h2>Fechas extremas y condición física</h2>
             <p>Complete el rubro 6 y seleccione la condición física del rubro 7.</p>
             <div className="archive-wizard-grid">
-              <label>Fecha más antigua — Área Productora <input value={report.producer_oldest_year} onChange={(event) => update('producer_oldest_year', event.target.value)} /><Instruction instructionKey="dates" /></label>
-              <label>Fecha más reciente — Área Productora <input value={report.producer_newest_year} onChange={(event) => update('producer_newest_year', event.target.value)} /></label>
-              <label>Fecha más antigua — Área Coordinadora <input value={report.coordinator_oldest_year} onChange={(event) => update('coordinator_oldest_year', event.target.value)} /></label>
-              <label>Fecha más reciente — Área Coordinadora <input value={report.coordinator_newest_year} onChange={(event) => update('coordinator_newest_year', event.target.value)} /></label>
+              <label>Fecha más antigua — Área Productora
+                <select value={report.producer_oldest_year} onChange={(event) => update('producer_oldest_year', event.target.value)}><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select>
+                <Instruction instructionKey="dates" />
+              </label>
+              <label>Fecha más reciente — Área Productora
+                <select value={report.producer_newest_year} onChange={(event) => update('producer_newest_year', event.target.value)}><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select>
+              </label>
+              <label>Fecha más antigua — Área Coordinadora
+                <select value={report.coordinator_oldest_year} onChange={(event) => update('coordinator_oldest_year', event.target.value)}><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select>
+              </label>
+              <label>Fecha más reciente — Área Coordinadora
+                <select value={report.coordinator_newest_year} onChange={(event) => update('coordinator_newest_year', event.target.value)}><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select>
+              </label>
             </div>
             <div className="archive-wizard-condition">
               <h3>¿En qué condiciones se encuentran los documentos? <Instruction instructionKey="condition" /></h3>

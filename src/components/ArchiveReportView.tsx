@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, CircleHelp, FileDown, FilePlus2, Save, X } from 'lucide-react';
 import { downloadArchiveReportDocx } from '../utils/docx';
+import { archiveYearOptions } from '../utils/years';
 import type {
   AdministrativeUnit,
   ArchiveReportChecklistEntry,
@@ -446,10 +447,10 @@ export function ArchiveReportView({ reports, units, areas, onSave }: ArchiveRepo
               <tr>
                 <th>6</th>
                 <td>Refiera los años que abarca la documentación que se resguarda en el archivo de trámite (fechas extremas)<FieldInstructions instructionKey="rubric_6" /></td>
-                <th>Fecha más antigua<br /><input aria-label="Fecha más antigua Área Productora" value={report.producer_oldest_year} onChange={(event) => updateReport('producer_oldest_year', event.target.value)} className="archive-report-entry archive-report-year" /></th>
-                <th>Fecha más reciente<br /><input aria-label="Fecha más reciente Área Productora" value={report.producer_newest_year} onChange={(event) => updateReport('producer_newest_year', event.target.value)} className="archive-report-entry archive-report-year" /></th>
-                <th className="archive-report-coordinator">Fecha más antigua<br /><input aria-label="Fecha más antigua Área Coordinadora" value={report.coordinator_oldest_year} onChange={(event) => updateReport('coordinator_oldest_year', event.target.value)} className="archive-report-entry archive-report-year" /></th>
-                <th className="archive-report-coordinator">Fecha más reciente<br /><input aria-label="Fecha más reciente Área Coordinadora" value={report.coordinator_newest_year} onChange={(event) => updateReport('coordinator_newest_year', event.target.value)} className="archive-report-entry archive-report-year" /></th>
+                <th>Fecha más antigua<br /><select aria-label="Fecha más antigua Área Productora" value={report.producer_oldest_year} onChange={(event) => updateReport('producer_oldest_year', event.target.value)} className="archive-report-entry archive-report-year"><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select></th>
+                <th>Fecha más reciente<br /><select aria-label="Fecha más reciente Área Productora" value={report.producer_newest_year} onChange={(event) => updateReport('producer_newest_year', event.target.value)} className="archive-report-entry archive-report-year"><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select></th>
+                <th className="archive-report-coordinator">Fecha más antigua<br /><select aria-label="Fecha más antigua Área Coordinadora" value={report.coordinator_oldest_year} onChange={(event) => updateReport('coordinator_oldest_year', event.target.value)} className="archive-report-entry archive-report-year"><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select></th>
+                <th className="archive-report-coordinator">Fecha más reciente<br /><select aria-label="Fecha más reciente Área Coordinadora" value={report.coordinator_newest_year} onChange={(event) => updateReport('coordinator_newest_year', event.target.value)} className="archive-report-entry archive-report-year"><option value="">Seleccionar año</option>{archiveYearOptions().map((year) => <option key={year} value={String(year)}>{year}</option>)}</select></th>
                 <td className="archive-report-coordinator"></td>
               </tr>
             </tbody>
