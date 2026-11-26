@@ -55,6 +55,14 @@ function entryValue(entry: ArchiveReportChecklistEntry | undefined) {
 }
 
 export async function downloadArchiveReportDocx(report: ArchiveReportInput): Promise<void> {
+  const normalizedReport: ArchiveReportInput = {
+    ...report,
+    checklist: Array.from({ length: 5 }, (_, index) => entryValue(report.checklist?.[index])),
+    digital_backup: entryValue(report.digital_backup),
+    dcai_documentation: entryValue(report.dcai_documentation),
+    dcai_clean: entryValue(report.dcai_clean),
+  };
+  report = normalizedReport;
   const mainRows = RUBRICS.map((rubric, index) => {
     const entry = entryValue(report.checklist[index]);
     return new TableRow({ children: [

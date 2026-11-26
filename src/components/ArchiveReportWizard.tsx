@@ -170,10 +170,17 @@ export function ArchiveReportWizard({ reports, units, areas, onSave }: Props) {
     if (!report || saving) return;
     setSaving(true);
     setError('');
+    const normalizedReport: ArchiveReportInput = {
+      ...report,
+      checklist: Array.from({ length: 5 }, (_, index) => normalizeEntry(report.checklist[index])),
+      digital_backup: normalizeEntry(report.digital_backup),
+      dcai_documentation: normalizeEntry(report.dcai_documentation),
+      dcai_clean: normalizeEntry(report.dcai_clean),
+    };
     try {
-      const saved = await onSave(report, editingId);
+      const saved = await onSave(normalizedReport, editingId);
       setEditingId(saved.id);
-      if (download) await downloadArchiveReportDocx(saved);
+      if (download) await downloadArchiveReportDocx(normalizedReport);
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : 'No se pudo guardar el reporte.');
     } finally {
