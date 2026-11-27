@@ -139,22 +139,23 @@ export async function downloadArchiveReportDocx(report: ArchiveReportInput): Pro
   const clean = { ...emptyEntry(), ...(report.dcai_clean ?? {}) };
   xml = fillTableCell(xml, 16, 3, digital.producer_yes ? 'X' : '');
   xml = fillTableCell(xml, 16, 4, digital.producer_no ? 'X' : '');
+  xml = fillTableCell(xml, 16, 5, digital.producer_observations ?? '');
   xml = fillTableCell(xml, 16, 6, digital.coordinator_yes ? 'X' : '');
   xml = fillTableCell(xml, 16, 7, digital.coordinator_no ? 'X' : '');
-  xml = fillTableCell(xml, 16, 8, digital.observations);
+  xml = fillTableCell(xml, 16, 8, digital.coordinator_observations ?? digital.observations ?? '');
   xml = fillTableCell(xml, 18, 3, dcai.producer_yes ? 'X' : '');
   xml = fillTableCell(xml, 18, 4, dcai.producer_no ? 'X' : '');
   xml = fillTableCell(xml, 18, 5, dcai.producer_quantity);
   xml = fillTableCell(xml, 18, 6, dcai.coordinator_yes ? 'X' : '');
   xml = fillTableCell(xml, 18, 7, dcai.coordinator_no ? 'X' : '');
   xml = fillTableCell(xml, 18, 8, dcai.coordinator_quantity);
-  xml = fillTableCell(xml, 18, 9, dcai.observations);
+  xml = fillTableCell(xml, 18, 9, dcai.coordinator_observations ?? dcai.observations ?? '');
   xml = fillTableCell(xml, 20, 3, clean.producer_yes ? 'X' : '');
   xml = fillTableCell(xml, 20, 4, clean.producer_no ? 'X' : '');
-  xml = fillTableCell(xml, 20, 5, clean.observations);
+  xml = fillTableCell(xml, 20, 5, clean.producer_observations ?? '');
   xml = fillTableCell(xml, 20, 6, clean.coordinator_yes ? 'X' : '');
   xml = fillTableCell(xml, 20, 7, clean.coordinator_no ? 'X' : '');
-  xml = fillTableCell(xml, 20, 8, clean.observations);
+  xml = fillTableCell(xml, 20, 8, clean.coordinator_observations ?? clean.observations ?? '');
 
   xml = fillSignatureCell(xml, 1, report.producer_area_name, report.producer_area_position);
   xml = fillSignatureCell(xml, 3, report.rat_name, report.rat_position);

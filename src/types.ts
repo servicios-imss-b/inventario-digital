@@ -87,6 +87,8 @@ export interface ArchiveReportChecklistEntry {
   coordinator_no: boolean;
   coordinator_quantity: string;
   observations: string;
+  producer_observations?: string;
+  coordinator_observations?: string;
 }
 
 export interface ArchiveReportInput {
