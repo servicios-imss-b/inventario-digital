@@ -61,7 +61,7 @@ const INSTRUCTIONS: Record<string, string> = {
   clean: 'Marcar si la DCAI está limpia de grapas, clips, sujetadocumentos y cubrehojas.',
   producerArea: 'Capturar nombre, cargo y firma de la persona del Área Productora que requisitó el formato.',
   rat: 'Capturar nombre, cargo y firma del Responsable de Archivo de Trámite.',
-  coordinator: 'Capturar nombre, cargo y firma del revisor adscrito al Área Coordinadora de Archivos.',
+  coordinator: 'Capturar únicamente el nombre del revisor adscrito al Área Coordinadora de Archivos. La firma se realiza a mano al imprimir.',
 };
 
 function emptyEntry(): ArchiveReportChecklistEntry {
@@ -107,7 +107,6 @@ function blankReport(unitName: string): ArchiveReportInput {
     rat_name: '',
     rat_position: '',
     coordinator_name: '',
-    coordinator_position: '',
   };
 }
 
@@ -136,7 +135,6 @@ function reportInput(report: ArchiveReportRecord): ArchiveReportInput {
     rat_name: report.rat_name ?? '',
     rat_position: report.rat_position ?? '',
     coordinator_name: report.coordinator_name ?? '',
-    coordinator_position: report.coordinator_position ?? '',
   };
 }
 
@@ -396,14 +394,13 @@ export function ArchiveReportWizard({ reports, units, areas, onSave, onDelete }:
         {step === 4 && (
           <section>
             <h2>Firmas</h2>
-            <p>Capture nombre y cargo. Las líneas de firma quedan en el formato para firmar de forma manual al imprimir.</p>
+            <p>Capture nombre y cargo de Productora y del RAT. Para el Revisor del Área Coordinadora, capture solo el nombre. Las líneas de firma quedan para firmar a mano al imprimir.</p>
             <div className="archive-wizard-grid">
               <label>Nombre — Área Productora <input value={report.producer_area_name} onChange={(event) => update('producer_area_name', event.target.value)} /><Instruction instructionKey="producerArea" /></label>
               <label>Cargo — Área Productora <input value={report.producer_area_position} onChange={(event) => update('producer_area_position', event.target.value)} /></label>
               <label>Nombre — Responsable de Archivo de Trámite <input value={report.rat_name} onChange={(event) => update('rat_name', event.target.value)} /><Instruction instructionKey="rat" /></label>
               <label>Cargo — Responsable de Archivo de Trámite <input value={report.rat_position} onChange={(event) => update('rat_position', event.target.value)} /></label>
               <label>Nombre — Revisor Adscrito al Área Coordinadora <input value={report.coordinator_name} onChange={(event) => update('coordinator_name', event.target.value)} /><Instruction instructionKey="coordinator" /></label>
-              <label>Cargo — Revisor Adscrito al Área Coordinadora <input value={report.coordinator_position} onChange={(event) => update('coordinator_position', event.target.value)} /></label>
             </div>
           </section>
         )}

@@ -114,7 +114,7 @@ export interface ArchiveReportInput {
   rat_name: string;
   rat_position: string;
   coordinator_name: string;
-  coordinator_position: string;
+  coordinator_position?: string;
 }
 
 export interface ArchiveReportRecord extends ArchiveReportInput {

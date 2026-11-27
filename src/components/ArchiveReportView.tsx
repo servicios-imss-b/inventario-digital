@@ -27,7 +27,7 @@ const FIELD_INSTRUCTIONS: Record<string, string> = {
   rubric_10: 'Marcar con una X si la DCAI está limpia de material corrosivo: grapas, clips, sujetadocumentos y cubrehojas.',
   producer_area_signature: 'Plasmar nombre, cargo y firma de la persona servidora pública adscrita al Área Productora que requisitó el formato.',
   rat_signature: 'Plasmar nombre, cargo y firma del Responsable de Archivo de Trámite de la unidad administrativa.',
-  coordinator_signature: 'Plasmar nombre, cargo y firma de la persona adscrita al Área Coordinadora de Archivos que realizó la revisión.',
+  coordinator_signature: 'Capturar únicamente el nombre de la persona adscrita al Área Coordinadora de Archivos que realizó la revisión. La firma se realiza a mano al imprimir.',
 };
 
 function FieldInstructions({ instructionKey }: { instructionKey: string }) {
@@ -96,7 +96,6 @@ function blankReport(unitName: string): ArchiveReportInput {
     rat_name: '',
     rat_position: '',
     coordinator_name: '',
-    coordinator_position: '',
     producer_oldest_year: '',
     producer_newest_year: '',
     coordinator_oldest_year: '',
@@ -126,7 +125,6 @@ function reportInput(report: ArchiveReportRecord): ArchiveReportInput {
     coordinator_oldest_year: report.coordinator_oldest_year,
     coordinator_newest_year: report.coordinator_newest_year,
     coordinator_name: report.coordinator_name ?? report.coordinator_signature ?? '',
-    coordinator_position: report.coordinator_position ?? '',
   };
 }
 
@@ -571,7 +569,6 @@ export function ArchiveReportView({ reports, units, areas, onSave }: ArchiveRepo
             </label>
             <label>
               <input aria-label="Nombre del Revisor del Área Coordinadora" value={report.coordinator_name} onChange={(event) => updateReport('coordinator_name', event.target.value)} className="archive-report-signature-input" />
-              <input aria-label="Cargo del Revisor del Área Coordinadora" value={report.coordinator_position} onChange={(event) => updateReport('coordinator_position', event.target.value)} className="archive-report-signature-input" />
               <span>Nombre y Cargo<br />Revisor Adscrito al Área Coordinadora de Archivos</span>
               <FieldInstructions instructionKey="coordinator_signature" />
             </label>

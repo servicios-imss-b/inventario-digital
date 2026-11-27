@@ -159,7 +159,7 @@ export async function downloadArchiveReportDocx(report: ArchiveReportInput): Pro
 
   xml = fillSignatureCell(xml, 1, report.producer_area_name, report.producer_area_position);
   xml = fillSignatureCell(xml, 3, report.rat_name, report.rat_position);
-  xml = fillSignatureCell(xml, 5, report.coordinator_name, report.coordinator_position);
+  xml = fillSignatureCell(xml, 5, report.coordinator_name, '');
 
   zip.file('word/document.xml', xml);
 
